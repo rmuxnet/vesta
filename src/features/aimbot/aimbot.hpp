@@ -1,6 +1,7 @@
 #pragma once
 
 #include <simulation/ballistics.hpp>
+#include <features/aimbot/recoil_control.hpp>
 #include <simulation/seed_reaction.hpp>
 #include <simulation/seed_timing.hpp>
 #include <config/settings.hpp>
@@ -99,6 +100,7 @@ namespace features::aimbot {
 			void recoil_control( const config::combat_profile::aimbot& cfg,
 				bool defer_input );
 			void flush_recoil_input( );
+			void reset_recoil( bool clear_burst );
 
 			struct trigger_result
 			{
@@ -209,26 +211,19 @@ namespace features::aimbot {
 			float m_aim_wander_phase{};
 			float m_aim_wander_freq{};
 			float m_aim_tracking_lag{};
-			// Recoil-sync СЃРѕСЃС‚РѕСЏРЅРёРµ: РєРѕРјРїРµРЅСЃР°С†РёСЏ РѕС‚СЃС‚Р°С‘С‚ РѕС‚ РѕС‚РґР°С‡Рё Рё РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃ РЅРµР№ С‚РѕС‡РЅРѕ
-			foundation::vec3 m_rcs_raw{};
-			foundation::vec3 m_rcs_target{};
-			foundation::vec3 m_rcs_velocity{};   // continuous compensation velocity
-			float m_rcs_gain{ 1.0f };         // РЅРµРґРѕ-/РїРµСЂРµРєРѕРјРїРµРЅСЃР°С†РёСЏ Р·Р° РѕС‡РµСЂРµРґСЊ
+			detail::recoil_motion m_rcs_motion{};
+			float m_rcs_gain{ 1.0f };
 			float m_rcs_response_scale{ 1.0f };
 			float m_rcs_phase{};
 			float m_rcs_freq{ 2.5f };
-			foundation::vec3 m_rcs_applied{};
-			foundation::vec2 m_rcs_mouse_error{};
-			foundation::vec2 m_rcs_pending_mouse{};
+			float m_rcs_degrees_per_count{};
 			std::chrono::steady_clock::time_point m_rcs_last_call{};
-			std::chrono::steady_clock::time_point m_rcs_last_input_time{};
-			int m_rcs_last_input_sequence{ -1 };
+			std::uintptr_t m_rcs_pawn{};
 			std::uintptr_t m_rcs_weapon{};
 			int m_rcs_last_clip{ -1 };
 			float m_rcs_last_shot_time{ -1.0f };
 			int m_rcs_burst_shots{};
-			int m_rcs_input_step{ 24 };
-			bool m_rcs_active{ false };       // РѕС‡РµСЂРµРґСЊ РёРґС‘С‚ (РѕС‚РґР°С‡Р° РЅР°РєРѕРїР»РµРЅР°)
+			bool m_rcs_active{};
 			std::uint64_t m_combat_sequence{};
 
 			foundation::vec3 m_aim_previous_relative_velocity{};
